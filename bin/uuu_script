@@ -1,0 +1,33 @@
+# This script can be used to boot the FRDM-IMX93 board using eMMC.
+# What this does is it writes the rootfs to eMMC and then places
+# the kernel image and DTB in RAM.
+#
+# Parameter list:
+#
+# @_flash.bin => boot container
+# @_rootfs => Rootfs (EXT2)
+# @_Image => Linux Kernel Image
+# @_dtb => Linux Kernel DTB
+
+# boot into u-boot proper
+SDPS: boot -f _flash.bin
+
+# write rootfs to eMMC
+FB: ucmd setenv fastboot_dev mmc
+FB: ucmd setenv mmcdev ${emmc_dev}
+FB: ucmd mmc dev ${emmc_dev}
+FB: flash all _rootfs
+
+# write kernel image to RAM
+FB: ucmd setenv fastboot_buffer ${loadaddr}
+FB: download -f _Image
+
+# write DTB to RAM
+FB: ucmd setenv fastboot_buffer ${fdt_addr}
+FB: download -f _dtb
+
+# overwrite bootargs
+FB: ucmd setenv bootargs ${bootargs} root=/dev/mmcblk0 rootwait
+FB: acmd booti ${loadaddr} - ${fdt_addr}
+
+FB: done
