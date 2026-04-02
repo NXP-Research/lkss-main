@@ -1,0 +1,170 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""Contains classes defining various utility functions"""
+
+import platform
+import os
+import stat
+import subprocess
+import shutil
+import pickle
+import shlex
+
+class LKSSConfig:
+	FILEPATH = ".lkss"
+
+	def __init__(self, data=dict()):
+		self.data = data
+
+	@staticmethod
+	def exists():
+		return os.path.isfile(LKSSConfig.FILEPATH)
+
+	@staticmethod
+	def load():
+		with open(LKSSConfig.FILEPATH, "rb") as fd:
+			data = pickle.load(fd)
+
+		return LKSSConfig(data=data)
+
+	def store(self):
+		with open(LKSSConfig.FILEPATH, "wb") as fd:
+			pickle.dump(self.data, fd)
+
+class LKSSDocker:
+	COMPOSE = "docker/compose.yaml"
+	SERVICE = "lkss"
+
+	@staticmethod
+	def build():
+		uid = os.getuid()
+		gid = os.getgid()
+
+		command = f"docker compose -f {LKSSDocker.COMPOSE} " +\
+					f"build --build-arg UID={uid} --build-arg GID={gid}"
+
+		print(command)
+
+		proc = subprocess.run(shlex.split(command))
+		if proc.returncode != 0:
+			print("Failed to build docker image")
+			return
+
+	@staticmethod
+	def start():
+		command = ["docker", "compose", "-f", LKSSDocker.COMPOSE, "up", "--detach"]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			print("Failed to start container")
+			return False
+
+		return True
+
+	@staticmethod
+	def shutdown():
+		command = ["docker", "compose", "-f", LKSSDocker.COMPOSE, "down"]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			print("Failed to shutdown container")
+			return
+
+	@staticmethod
+	def run(command: str, oneshot=True):
+		if oneshot:
+			self.start()
+
+		command = ["docker", "compose", "-f", LKSSDocker.COMPOSE,
+					"exec", LKSSDocker.SERVICE, "bash",  "-c", f"{command}"]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			print("Failed to execute command")
+			return False
+
+		if oneshot:
+			self.shutdown()
+
+		return True
+
+class LKSSUtil:
+	ROOTFS_MOUNT_POINT = ".rootfs_mnt"
+
+	@staticmethod
+	def platform_name() -> str:
+		"""Get the normalized name of the platform."""
+		if "WSL" in platform.uname().release.upper():
+			return "WSL"
+
+		return platform.system().upper()
+
+	@staticmethod
+	def set_executable(fpath: str):
+		"""Set the executable bit for a given file"""
+		if not os.access(fpath, os.X_OK):
+			os.chmod(fpath, os.stat(fpath).st_mode | stat.S_IEXEC)
+
+	@staticmethod
+	def mount_rootfs(rootfs_fpath: str, mount_fpath: str) -> bool:
+		# make sure mount point's created
+		if not os.path.isdir(mount_fpath):
+			os.makedirs(mount_fpath)
+
+		command = ["sudo", "mount", rootfs_fpath, mount_fpath]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			LKSSUtil.__remove_file(mount_fpath)
+			return False
+
+		return True
+
+	@staticmethod
+	def unmount_rootfs(mount_fpath: str) -> bool:
+		command = ["sudo", "umount", mount_fpath]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			return False
+
+		LKSSUtil.__remove_file(mount_fpath)
+
+		return True
+
+	@staticmethod
+	def __remove_file(fpath: str):
+		command = ["sudo", "rm", "-r", fpath]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			print(f"Failed to remove {fpath}")
+			return
+
+	@staticmethod
+	def __copy_file(src: str, dst: str):
+		command = ["sudo", "cp", "-r", src, dst]
+
+		proc = subprocess.run(command)
+		if proc.returncode != 0:
+			print(f"Failed to copy {src} to {dst}")
+			return
+
+	@staticmethod
+	def copy_to_rootfs(rootfs_fpath: str, src_fpath: str, dst_fpath: str):
+		mount_fpath = os.path.join(os.getcwd(), LKSSUtil.ROOTFS_MOUNT_POINT)
+		dst = os.path.join(mount_fpath, dst_fpath.lstrip("/"))
+
+		print(f"Attempting to recursively copy {src_fpath} to {dst}")
+
+		if not LKSSUtil.mount_rootfs(rootfs_fpath, mount_fpath):
+			print("Failed to mount rootfs")
+			return
+
+		LKSSUtil.__copy_file(src_fpath, dst)
+
+		if not LKSSUtil.unmount_rootfs(mount_fpath):
+			print("Failed to unmount rootfs")
+			return

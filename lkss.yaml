@@ -1,0 +1,21 @@
+#
+# Some potentially note worthy comments:
+#
+# * for UNIX-like systems (e.g. Linux, MacOS), the name of the UUU
+# executable needs to be 'uuu'. Thus, use the 'alias' property if
+# the release binary doesn't fulfil this requirement.
+#
+# * for a binary, if the 'tag' property is not specified, it is assumed
+# that the latest release should be used.
+#
+# * for repositories, there's no 'alias' property. The name of the
+# directory will be that of the repository.
+#
+# * for repositories with a large number of commits (e.g. Linux),
+# it's recommended to set the clone depth via the 'depth' property.
+
+repositories:
+  - name: lkss-linux
+    remote: https://github.com/NXP-Research
+    branch: lkss-6.19.y
+    depth: 10
