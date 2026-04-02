@@ -23,7 +23,7 @@ BOOT_CONTAINER_NAME = "flash.bin"
 # name of the boot script
 BOOT_SCRIPT_NAME = "uuu_script"
 # name of the Linux kernel defconfig
-DEFCONFIG_NAME = "imx93frdm_defconfig"
+DEFCONFIG_NAME = "imx93frdm_lkss_defconfig"
 
 def compile_docker(command: str, kernel: str, image: str,
 					dtb: str, output: str, clean_config: bool):
