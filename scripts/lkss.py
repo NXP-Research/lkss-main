@@ -103,7 +103,7 @@ def do_menuconfig(clean_config: bool):
 		print("No configuration file found - have you run init?")
 		return
 
-	kernel = os.path.join(LKSSManifest.REPOS_DIR, "linux")
+	kernel = os.path.join(LKSSManifest.REPOS_DIR, "lkss-linux")
 	command = f"make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C {kernel} "
 	env = LKSSConfig.load().data["env"]
 
