@@ -8,6 +8,7 @@ import os
 import yaml
 
 from lkss_util import LKSSUtil
+from lkss_env import LKSS_ENV
 
 class LKSSRepository:
 	@staticmethod
@@ -185,12 +186,8 @@ class LKSSBinary:
 		return LKSSBinary.download(binary, prefix, True)
 
 class LKSSManifest:
-	REPOS_DIR = "repos"
-	BINARIES_DIR = "bin"
-	MANIFEST_FILE = "lkss.yaml"
-
 	def __init__(self):
-		with open(LKSSManifest.MANIFEST_FILE) as fd:
+		with open(LKSS_ENV["MANIFEST_FILE"]) as fd:
 			self.content = yaml.safe_load(fd)
 
 	def init(self):
@@ -200,13 +197,13 @@ class LKSSManifest:
 
 		if "repositories" in self.content and self.content["repositories"] is not None:
 			for repo in self.content["repositories"]:
-				LKSSRepository.clone(repo, LKSSManifest.REPOS_DIR)
+				LKSSRepository.clone(repo, LKSS_ENV["REPOS_DIR"])
 		else:
 			print("No repositories in manifest file - skip init")
 
 		if "binaries" in self.content and self.content["binaries"] is not None:
 			for binary in self.content["binaries"]:
-				LKSSBinary.download(binary, LKSSManifest.BINARIES_DIR)
+				LKSSBinary.download(binary, LKSS_ENV["BINARIES_DIR"])
 		else:
 			print("No binaries in manifest file - skip init")
 
@@ -217,7 +214,7 @@ class LKSSManifest:
 
 		if "repositories" in self.content and self.content["repositories"] is not None:
 			for repo in self.content["repositories"]:
-				LKSSRepository.update(repo, LKSSManifest.REPOS_DIR)
+				LKSSRepository.update(repo, LKSS_ENV["REPOS_DIR"])
 		else:
 			print("No repositories in manifest file - skip update")
 
@@ -226,6 +223,6 @@ class LKSSManifest:
 			print("Updating binaries will overwrite existing ones!")
 
 			for binary in self.content["binaries"]:
-				LKSSBinary.update(binary, LKSSManifest.BINARIES_DIR)
+				LKSSBinary.update(binary, LKSS_ENV["BINARIES_DIR"])
 		else:
 			print("No binaries in manifest file - skip update")

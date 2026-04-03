@@ -13,17 +13,7 @@ import shlex
 
 from lkss_manifest import LKSSManifest
 from lkss_util import LKSSUtil, LKSSDocker, LKSSConfig
-
-# default directory in which compiled binaries are placed
-OUTPUT_DIR = "output"
-# name of the Linux kernel DTB
-DTB_NAME = "imx93-11x11-frdm.dtb"
-# name of the boot container
-BOOT_CONTAINER_NAME = "flash.bin"
-# name of the boot script
-BOOT_SCRIPT_NAME = "uuu_script"
-# name of the Linux kernel defconfig
-DEFCONFIG_NAME = "imx93frdm_lkss_defconfig"
+from lkss_env import LKSS_ENV
 
 def compile_docker(command: str, kernel: str, image: str,
 					dtb: str, output: str, clean_config: bool):
@@ -33,7 +23,7 @@ def compile_docker(command: str, kernel: str, image: str,
 
 	# set the configuration if need be
 	if clean_config:
-		LKSSDocker.run(command + DEFCONFIG_NAME, oneshot=False)
+		LKSSDocker.run(command + LKSS_ENV["DEFCONFIG_NAME"], oneshot=False)
 
 	# build the kernel
 	LKSSDocker.run(command, oneshot=False)
@@ -52,7 +42,7 @@ def compile_native(command: str, kernel: str, image: str,
 					dtb: str, output: str, clean_config: bool):
 	# set the configuration if need be
 	if clean_config:
-		proc = subprocess.run(shlex.split(command + DEFCONFIG_NAME))
+		proc = subprocess.run(shlex.split(command + LKSS_ENV["DEFCONFIG_NAME"]))
 		if proc.returncode != 0:
 			print("Failed to set configuration")
 			return
@@ -76,7 +66,7 @@ def menuconfig_docker(command: str, clean_config: bool):
 		return
 
 	if clean_config:
-		LKSSDocker.run(command + DEFCONFIG_NAME, oneshot=False)
+		LKSSDocker.run(command + LKSS_ENV["DEFCONFIG_NAME"], oneshot=False)
 
 	# open the menuconfig interface
 	LKSSDocker.run(command + "menuconfig", oneshot=False)
@@ -87,7 +77,7 @@ def menuconfig_docker(command: str, clean_config: bool):
 def menuconfig_native(command: str, clean_config: bool):
 	# set the configuration if need be
 	if clean_config:
-		proc = subprocess.run(shlex.split(command + DEFCONFIG_NAME))
+		proc = subprocess.run(shlex.split(command + LKSS_ENV["DEFCONFIG_NAME"]))
 		if proc.returncode != 0:
 			print("Failed to set configuration")
 			return
@@ -103,7 +93,7 @@ def do_menuconfig(clean_config: bool):
 		print("No configuration file found - have you run init?")
 		return
 
-	kernel = os.path.join(LKSSManifest.REPOS_DIR, "lkss-linux")
+	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], "lkss-linux")
 	command = f"make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C {kernel} "
 	env = LKSSConfig.load().data["env"]
 
@@ -118,9 +108,9 @@ def do_compile(jobs: int, install_modules: bool, clean_config: bool):
 		print("No configuration file found - have you run init?")
 		return
 
-	kernel = os.path.join(LKSSManifest.REPOS_DIR, "lkss-linux")
+	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], "lkss-linux")
 	image = os.path.join(kernel, "arch/arm64/boot/Image")
-	dtb = os.path.join(kernel, "arch/arm64/boot/dts/freescale", DTB_NAME)
+	dtb = os.path.join(kernel, "arch/arm64/boot/dts/freescale", LKSS_ENV["DTB_NAME"])
 	env = LKSSConfig.load().data["env"]
 
 	command = f"make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C {kernel} "
@@ -129,23 +119,23 @@ def do_compile(jobs: int, install_modules: bool, clean_config: bool):
 		command += f"-j{jobs} "
 
 	if env == "docker":
-		compile_docker(command, kernel, image, dtb, OUTPUT_DIR, clean_config)
+		compile_docker(command, kernel, image, dtb, LKSS_ENV["OUTPUT_DIR"], clean_config)
 	else:
-		compile_native(command, kernel, image, dtb, OUTPUT_DIR, clean_config)
+		compile_native(command, kernel, image, dtb, LKSS_ENV["OUTPUT_DIR"], clean_config)
 
 	if install_modules:
 		do_modules_install()
 
 def do_boot():
-	bin_path = os.path.join(os.getcwd(), LKSSManifest.BINARIES_DIR)
-	output_path = os.path.join(os.getcwd(), OUTPUT_DIR)
+	bin_path = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"])
+	output_path = os.path.join(os.getcwd(), LKSS_ENV["OUTPUT_DIR"])
 
 	# assemble paths for all required binaries
 	rootfs = os.path.join(bin_path, "rootfs")
 	image = os.path.join(output_path, "Image")
-	dtb = os.path.join(output_path, DTB_NAME)
-	container = os.path.join(bin_path, BOOT_CONTAINER_NAME)
-	script = os.path.join(bin_path, BOOT_SCRIPT_NAME)
+	dtb = os.path.join(output_path, LKSS_ENV["DTB_NAME"])
+	container = os.path.join(bin_path, LKSS_ENV["BOOT_CONTAINER_NAME"])
+	script = os.path.join(bin_path, LKSS_ENV["BOOT_SCRIPT_NAME"])
 
 	if LKSSUtil.platform_name() == "WSL":
 		uuu = os.path.join(bin_path, "uuu.exe")
@@ -170,13 +160,13 @@ def do_boot():
 		return
 
 def do_copy(src_fpath: str, dst_fpath: str):
-	rootfs = os.path.join(os.getcwd(), LKSSManifest.BINARIES_DIR, "rootfs")
+	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], "rootfs")
 	LKSSUtil.copy_to_rootfs(rootfs, src_fpath, dst_fpath)
 
 def do_modules_install():
-	kernel = os.path.join(os.getcwd(), LKSSManifest.REPOS_DIR, "lkss-linux")
-	rootfs = os.path.join(os.getcwd(), LKSSManifest.BINARIES_DIR, "rootfs")
-	mount = os.path.join(os.getcwd(), LKSSUtil.ROOTFS_MOUNT_POINT)
+	kernel = os.path.join(os.getcwd(), LKSS_ENV["REPOS_DIR"], "lkss-linux")
+	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], "rootfs")
+	mount = os.path.join(os.getcwd(), LKSS_ENV["ROOTFS_MOUNT_DIR"])
 
 	if not LKSSUtil.mount_rootfs(rootfs, mount):
 		print("Failed to mount rootfs")

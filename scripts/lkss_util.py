@@ -91,8 +91,6 @@ class LKSSDocker:
 		return True
 
 class LKSSUtil:
-	ROOTFS_MOUNT_POINT = ".rootfs_mnt"
-
 	@staticmethod
 	def platform_name() -> str:
 		"""Get the normalized name of the platform."""
@@ -154,7 +152,7 @@ class LKSSUtil:
 
 	@staticmethod
 	def copy_to_rootfs(rootfs_fpath: str, src_fpath: str, dst_fpath: str):
-		mount_fpath = os.path.join(os.getcwd(), LKSSUtil.ROOTFS_MOUNT_POINT)
+		mount_fpath = os.path.join(os.getcwd(), LKSS_ENV["ROOTFS_MOUNT_DIR"])
 		dst = os.path.join(mount_fpath, dst_fpath.lstrip("/"))
 
 		print(f"Attempting to recursively copy {src_fpath} to {dst}")

@@ -1,0 +1,28 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# contains various environemnt variables used throughout the scripts
+LKSS_ENV = {
+	# default directory for output products
+	"OUTPUT_DIR": "output",
+	# default directory for cloning the repositories
+	"REPOS_DIR": "repos",
+	# default directory for downloading the binaries
+	"BINARIES_DIR": "bin",
+	# default directory in which the rootfs will be temporarily mounted
+	"ROOTFS_MOUNT_DIR": ".rootfs_mnt",
+
+	# name of the Linux kernel DTB
+	"DTB_NAME": "imx93-11x11-frdm.dtb",
+	# name of the Linux kernel defconfig
+	"DEFCONFIG_NAME": "imx93frdm_lkss_defconfig",
+
+	# name of the boot container
+	"BOOT_CONTAINER_NAME": "flash.bin",
+	# name of the boot script
+	"BOOT_SCRIPT_NAME": "uuu_script",
+
+	# name of the manifest file
+	"MANIFEST_FILE": "lkss.yaml",
+}
