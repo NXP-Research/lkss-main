@@ -195,22 +195,37 @@ class LKSSManifest:
 
 	def init(self):
 		if self.content is None:
-			print("Empty manifest file is not allowed")
+			print("Empty manifest file - skip init")
 			return
 
 		if "repositories" in self.content and self.content["repositories"] is not None:
 			for repo in self.content["repositories"]:
 				LKSSRepository.clone(repo, LKSSManifest.REPOS_DIR)
+		else:
+			print("No repositories in manifest file - skip init")
 
 		if "binaries" in self.content and self.content["binaries"] is not None:
 			for binary in self.content["binaries"]:
 				LKSSBinary.download(binary, LKSSManifest.BINARIES_DIR)
+		else:
+			print("No binaries in manifest file - skip init")
 
 	def update(self):
-		for repo in self.content["repositories"]:
-			LKSSRepository.update(repo, LKSSManifest.REPOS_DIR)
+		if self.content is None:
+			print("Empty manifest file - skip update")
+			return
 
-		print("Updating binaries will overwrite existing ones!")
+		if "repositories" in self.content and self.content["repositories"] is not None:
+			for repo in self.content["repositories"]:
+				LKSSRepository.update(repo, LKSSManifest.REPOS_DIR)
+		else:
+			print("No repositories in manifest file - skip update")
 
-		for binary in self.content["binaries"]:
-			LKSSBinary.update(binary, LKSSManifest.BINARIES_DIR)
+
+		if "binaries" in self.content and self.content["binaries"] is not None:
+			print("Updating binaries will overwrite existing ones!")
+
+			for binary in self.content["binaries"]:
+				LKSSBinary.update(binary, LKSSManifest.BINARIES_DIR)
+		else:
+			print("No binaries in manifest file - skip update")
