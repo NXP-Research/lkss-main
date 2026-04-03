@@ -27,4 +27,12 @@ LKSS_ENV = {
 
 	# name of the manifest file
 	"MANIFEST_FILE": "lkss.yaml",
+
+	# name of the rootfs
+	"ROOTFS_NAME": "rootfs",
+
+	# name of the uuu executable (unix)
+	"UNIX_UUU_NAME": "uuu",
+	# name of the uuu executable (windows)
+	"WINDOWS_UUU_NAME": "uuu.exe",
 }

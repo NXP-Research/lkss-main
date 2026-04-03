@@ -188,7 +188,16 @@ class LKSSBinary:
 class LKSSManifest:
 	def __init__(self):
 		with open(LKSS_ENV["MANIFEST_FILE"]) as fd:
-			self.content = yaml.safe_load(fd)
+			raw_content = fd.read()
+
+			# before loading the YAML file, we need to perform a fixup
+			# meaning we replace all the environment variables with the
+			# corresponding values from LKSS_ENV
+
+			for var, val in LKSS_ENV.items():
+				raw_content = raw_content.replace(f"${var}", f"{val}")
+
+			self.content = yaml.safe_load(raw_content)
 
 	def init(self):
 		if self.content is None:

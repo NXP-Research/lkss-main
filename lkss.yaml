@@ -18,4 +18,5 @@ repositories:
   - name: lkss-linux
     remote: https://github.com/NXP-Research
     branch: lkss-6.19.y
+    alias: $LINUX_DIR
     depth: 10

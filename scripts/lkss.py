@@ -131,16 +131,16 @@ def do_boot():
 	output_path = os.path.join(os.getcwd(), LKSS_ENV["OUTPUT_DIR"])
 
 	# assemble paths for all required binaries
-	rootfs = os.path.join(bin_path, "rootfs")
+	rootfs = os.path.join(bin_path, LKSS_ENV["ROOTFS_NAME"])
 	image = os.path.join(output_path, "Image")
 	dtb = os.path.join(output_path, LKSS_ENV["DTB_NAME"])
 	container = os.path.join(bin_path, LKSS_ENV["BOOT_CONTAINER_NAME"])
 	script = os.path.join(bin_path, LKSS_ENV["BOOT_SCRIPT_NAME"])
 
 	if LKSSUtil.platform_name() == "WSL":
-		uuu = os.path.join(bin_path, "uuu.exe")
+		uuu = os.path.join(bin_path, LKSS_ENV["WINDOWS_UUU_NAME"])
 	else:
-		uuu = os.path.join(bin_path, "uuu")
+		uuu = os.path.join(bin_path, LKSS_ENV["UNIX_UUU_NAME"])
 
 	binaries = [rootfs, image, dtb, container, script, uuu]
 
@@ -160,12 +160,12 @@ def do_boot():
 		return
 
 def do_copy(src_fpath: str, dst_fpath: str):
-	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], "rootfs")
+	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], LKSS_ENV["ROOTFS_NAME"])
 	LKSSUtil.copy_to_rootfs(rootfs, src_fpath, dst_fpath)
 
 def do_modules_install():
 	kernel = os.path.join(os.getcwd(), LKSS_ENV["REPOS_DIR"], LKSS_ENV["LINUX_DIR"])
-	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], "rootfs")
+	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], LKSS_ENV["ROOTFS_NAME"])
 	mount = os.path.join(os.getcwd(), LKSS_ENV["ROOTFS_MOUNT_DIR"])
 
 	if not LKSSUtil.mount_rootfs(rootfs, mount):
