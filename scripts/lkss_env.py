@@ -12,6 +12,8 @@ LKSS_ENV = {
 	"BINARIES_DIR": "bin",
 	# default directory in which the rootfs will be temporarily mounted
 	"ROOTFS_MOUNT_DIR": ".rootfs_mnt",
+	# name of the linux repository
+	"LINUX_DIR": "lkss-linux",
 
 	# name of the Linux kernel DTB
 	"DTB_NAME": "imx93-11x11-frdm.dtb",

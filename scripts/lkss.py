@@ -93,7 +93,7 @@ def do_menuconfig(clean_config: bool):
 		print("No configuration file found - have you run init?")
 		return
 
-	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], "lkss-linux")
+	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], LKSS_ENV["LINUX_DIR"])
 	command = f"make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -C {kernel} "
 	env = LKSSConfig.load().data["env"]
 
@@ -108,7 +108,7 @@ def do_compile(jobs: int, install_modules: bool, clean_config: bool):
 		print("No configuration file found - have you run init?")
 		return
 
-	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], "lkss-linux")
+	kernel = os.path.join(LKSS_ENV["REPOS_DIR"], LKSS_ENV["LINUX_DIR"])
 	image = os.path.join(kernel, "arch/arm64/boot/Image")
 	dtb = os.path.join(kernel, "arch/arm64/boot/dts/freescale", LKSS_ENV["DTB_NAME"])
 	env = LKSSConfig.load().data["env"]
@@ -164,7 +164,7 @@ def do_copy(src_fpath: str, dst_fpath: str):
 	LKSSUtil.copy_to_rootfs(rootfs, src_fpath, dst_fpath)
 
 def do_modules_install():
-	kernel = os.path.join(os.getcwd(), LKSS_ENV["REPOS_DIR"], "lkss-linux")
+	kernel = os.path.join(os.getcwd(), LKSS_ENV["REPOS_DIR"], LKSS_ENV["LINUX_DIR"])
 	rootfs = os.path.join(os.getcwd(), LKSS_ENV["BINARIES_DIR"], "rootfs")
 	mount = os.path.join(os.getcwd(), LKSS_ENV["ROOTFS_MOUNT_DIR"])
 
