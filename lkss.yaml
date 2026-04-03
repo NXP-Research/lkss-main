@@ -1,15 +1,12 @@
 #
 # Some potentially note worthy comments:
 #
-# * for UNIX-like systems (e.g. Linux, MacOS), the name of the UUU
-# executable needs to be 'uuu'. Thus, use the 'alias' property if
-# the release binary doesn't fulfil this requirement.
-#
 # * for a binary, if the 'tag' property is not specified, it is assumed
 # that the latest release should be used.
 #
-# * for repositories, there's no 'alias' property. The name of the
-# directory will be that of the repository.
+# * use the 'alias' property whenever you wish to change the name of the
+# downloaded binary or cloned repository. For repositories used by the
+# parser scripts this is mandatory.
 #
 # * for repositories with a large number of commits (e.g. Linux),
 # it's recommended to set the clone depth via the 'depth' property.

@@ -32,7 +32,13 @@ class LKSSRepository:
 	@staticmethod
 	def clone(repo: dict, prefix: str):
 		url = repo["remote"] + "/" + repo["name"]
-		path = os.path.join(os.getcwd(), prefix, repo["name"])
+
+		if "alias" in repo:
+			repo_name = repo["alias"]
+		else:
+			repo_name = repo["name"]
+
+		path = os.path.join(os.getcwd(), prefix, repo_name)
 
 		if "depth" in repo:
 			depth = repo["depth"]
@@ -93,7 +99,11 @@ class LKSSRepository:
 
 	@staticmethod
 	def update(repo: dict, prefix: str):
-		path = os.path.join(os.getcwd(), prefix, repo["name"])
+
+		if "alias" in repo:
+			path = os.path.join(os.getcwd(), prefix, repo["alias"])
+		else:
+			path = os.path.join(os.getcwd(), prefix, repo["name"])
 
 		if not LKSSRepository.__is_repo(path):
 			print("{} not cloned - have you ran init?".format(repo["name"]))
