@@ -1,5 +1,5 @@
-About
-=====
+About this year's edition
+=========================
 
 TODO
 
