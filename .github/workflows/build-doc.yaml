@@ -36,7 +36,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
-    if: github.ref == 'ref/heads/main'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to GitHub pages
         id: deployment
