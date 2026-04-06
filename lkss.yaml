@@ -17,3 +17,21 @@ repositories:
     branch: lkss-6.19.y
     alias: $LINUX_DIR
     depth: 10
+
+binaries:
+  - remote: https://github.com/nxp-imx/mfgtools
+    variants:
+      - name: uuu
+        platform: linux
+        alias: $UNIX_UUU_NAME
+      - name: uuu.exe
+        platform: wsl
+        alias: $WINDOWS_UUU_NAME
+
+  - remote: https://github.com/NXP-Research/lkss-buildroot
+    name: rootfs.ext2
+    alias: $ROOTFS_NAME
+
+  - remote: https://github.com/NXP-Research/lkss-buildroot
+    name: imx9-boot-sd.bin
+    alias: $BOOT_CONTAINER_NAME
