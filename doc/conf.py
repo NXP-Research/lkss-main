@@ -21,6 +21,7 @@ numfig = True
 # same formatting you'd see in LATEX
 numfig_format = {
 	'figure': 'Figure %s',
+	'table': 'Table %s',
 }
 
 # -- Options for HTML output -------------------------------------------------
