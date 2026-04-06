@@ -16,6 +16,12 @@ author = 'NXP'
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+numfig = True
+
+# same formatting you'd see in LATEX
+numfig_format = {
+	'figure': 'Figure %s',
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
