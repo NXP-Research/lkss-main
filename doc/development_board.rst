@@ -152,6 +152,8 @@ Useful resources
 #. `i.MX93 home page`_
 #. `i.MX93 technical reference manual`_
 
+.. rubric:: Footnotes
+
 .. [#] List is not exhaustive.
        For a more comprehensive list of features please check out:
        https://www.nxp.com/design/design-center/development-boards-and-designs/frdm-i-mx-93-development-board:FRDM-IMX93
