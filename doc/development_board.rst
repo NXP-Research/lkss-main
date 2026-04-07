@@ -57,9 +57,9 @@ using yellow.
 
    FRDM-IMX93 boot switch location
 
-The boot switch is made up of **four** switches, numbered from 1 to 4, each having
-two possible states: **ON** or **OFF**. The boot medium is selected by placing these
-switches into the appropriate states.
+The boot switch consists of **four** switches, numbered from 1 to 4, each with
+two possible states: **ON** or **OFF**. The boot medium is chosen by placing
+these switches into the appropriate states.
 
 The state of the boot switch can be encoded using a group of 4 bits, indexed from 1
 to 4 (leftmost being index 1 and rightmost being index 4). Using this encoding, a
@@ -90,6 +90,68 @@ For example, if one wishes to boot the board over USB [#]_, according to
 :numref:`frdm-imx93-boot-mediums`, one would have to set switch 1 to ON,
 switch 2 to OFF, switch 3 to OFF, and switch 4 to OFF.
 
+The expansion header
+--------------------
+
+To allow communication with external modules, the board is equipped with a
+pin header made up of 40 pins. This is referred to as the **expansion header**
+and is highlighted in :numref:`frdm-imx93-expansion-hdr`.
+
+.. _frdm-imx93-expansion-hdr:
+
+.. figure:: _static/figures/FRDM-IMX93-EXPANSION-HDR.png
+   :align: center
+
+   FRDM-IMX93 expansion header
+
+
+:numref:`frdm-imx93-expansion-hdr-schematic` showcases the schematic of the
+expansion header.
+
+.. _frdm-imx93-expansion-hdr-schematic:
+
+.. figure:: _static/figures/FRDM-IMX93-EXPANSION-HDR-SCHEMATIC.png
+   :align: center
+
+   FRDM-IMX93 expansion header schematic [#]_
+
+Looking at :numref:`frdm-imx93-expansion-hdr-schematic`, the pins of the
+expansion header are numbered from 1 to 40. To find the index of a pin on
+the physical board, first flip the board upside down and then look for the
+bottom part of the expansion header. This is highlighted in
+:numref:`frdm-imx93-expansion-hdr-bottom`.
+
+.. _frdm-imx93-expansion-hdr-bottom:
+
+.. figure:: _static/figures/FRDM-IMX93-EXPANSION-HDR-BOTTOM.png
+   :align: center
+
+   FRDM-IMX93 expansion header (bottom view) [#]_
+
+After locating the expansion header, look for the **3V3** label inscribed
+near the soldered pins. According to :numref:`frdm-imx93-expansion-hdr-schematic`,
+this corresponds to pin 1 [#]_. Its location is shown in
+:numref:`frdm-imx93-expansion-hdr-bottom-pin1`.
+
+.. _frdm-imx93-expansion-hdr-bottom-pin1:
+
+.. figure:: _static/figures/FRDM-IMX93-EXPANSION-HDR-BOTTOM-PIN1.png
+   :align: center
+
+   FRDM-IMX93 expansion header pin 1 location (bottom view)
+
+The rest of the pins can be discovered based on the location of pin 1.
+
+Useful resources
+----------------
+
+#. `FRDM-IMX93 home page`_
+#. `FRDM-IMX93 design files`_
+#. `FRDM-IMX93 quick start guide`_
+#. `FRDM-IMX93 getting started guide`_
+#. `i.MX93 home page`_
+#. `i.MX93 technical reference manual`_
+
 .. [#] List is not exhaustive.
        For a more comprehensive list of features please check out:
        https://www.nxp.com/design/design-center/development-boards-and-designs/frdm-i-mx-93-development-board:FRDM-IMX93
@@ -97,12 +159,32 @@ switch 2 to OFF, switch 3 to OFF, and switch 4 to OFF.
 .. [#] Source: https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-IMX93
 
 .. [#] Piece of software that gets executed after the boot ROM and is used to load
-       the OS (e.g. Linux).
+       the rich OS (e.g. Linux).
 
 .. [#] Piece of software the automatically gets executed when the board is powered on.
 
 .. [#] This means that the bootloader image is transferred to the board via USB.
 
+.. [#] Source: the FRDM-IMX93 board schematic, which can be donwloaded from
+       https://www.nxp.com/webapp/Download?colCode=FRDM-iMX93-DESIGNFILES
+
+.. [#] Source: https://www.nxp.com/document/guide/getting-started-with-frdm-imx93:GS-FRDM-IMX93
+
+.. [#] Although the net name (i.e. **VEXP_3V3**) and label name from the physical board (i.e. **3V3**)
+       differ, they refer to the same pin.
+
 .. _i.MX93: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/i-mx-applications-processors/i-mx-9-processors/i-mx-93-applications-processor-family-arm-cortex-a55-ml-acceleration-power-efficient-mpu:i.MX93
 
 .. _FRDM-IMX93: https://www.nxp.com/design/design-center/development-boards-and-designs/frdm-i-mx-93-development-board:FRDM-IMX93
+
+.. _FRDM-IMX93 home page: https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-IMX93
+
+.. _FRDM-IMX93 design files: https://www.nxp.com/webapp/Download?colCode=FRDM-iMX93-DESIGNFILES
+
+.. _FRDM-IMX93 quick start guide: https://www.nxp.com/webapp/Download?colCode=FRDM-IMX93-QSG
+
+.. _FRDM-IMX93 getting started guide: https://www.nxp.com/document/guide/getting-started-with-frdm-imx93:GS-FRDM-IMX93
+
+.. _i.MX93 home page: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/i-mx-applications-processors/i-mx-9-processors/i-mx-93-applications-processor-family-arm-cortex-a55-ml-acceleration-power-efficient-mpu:i.MX93
+
+.. _i.MX93 technical reference manual: https://www.nxp.com/docs/en/reference-manual/IMX93RM.pdf
