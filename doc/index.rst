@@ -19,6 +19,7 @@ Check out the following resources to help you get started:
 - :ref:`Preparing the development environment <infrastructure>`
 - :ref:`Getting acquainted with the FRDM-IMX93 board <development_board>`
 
+.. _team:
 
 Team
 ----
@@ -59,7 +60,7 @@ students to try to fix the issues themselves by submitting a pull request.
    :hidden:
    :caption: Getting started
 
-   infrastructure
+   infrastructure/main
    development_board
 
 .. toctree::
