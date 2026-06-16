@@ -6,9 +6,15 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import sys
+from pathlib import Path
+
 project = 'NXP Linux kernel Summer School'
 copyright = '2026, NXP'
 author = 'NXP'
+
+# for custom extensions
+sys.path.append(str(Path('_ext').resolve()))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -21,7 +27,8 @@ numfig = True
 extensions = [
 	'sphinx_copybutton',
 	'sphinx_tabs.tabs',
-	'sphinx_design'
+	'sphinx_design',
+	'lkss' # custom extension
 ]
 
 # same formatting you'd see in LATEX
