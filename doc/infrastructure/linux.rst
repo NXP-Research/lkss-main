@@ -76,169 +76,96 @@ With this out of the way, we can now install the required python packages:
 
    pip install -r requirements.txt
 
-.. _linux-native-development:
+Choosing the environment
+------------------------
 
-Native development
-------------------
+To proceed, choose one of the environments below and then follow the corresponding
+setup steps:
 
-Prerequisites
-~~~~~~~~~~~~~
+.. dropdown:: Native environment
+   :animate: fade-in-slide-down
+   :name: linux-native-development
 
-For native development, we're going to require a few more packages, which
-can be installed by running:
+   **Prerequisites**
 
-.. code-block:: bash
-
-   sudo apt-get update
-   sudo apt-get install -y build-essential libncurses-dev bc \
-                           flex bison libssl-dev \
-                           libelf-dev gcc-aarch64-linux-gnu
-
-Native environment initialization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-With all of the necessary packages installed, we can now move on to the
-next step, which is to initialize the environment for native development.
-To do so, run:
-
-.. code-block:: bash
-
-   ./scripts/lkss.py init --runner native -f
-
-If all commands issued so far have returned successfully, your environment
-should now be prepared for native development.
-
-Summary
-~~~~~~~
-
-1. Install the system packages:
-
-.. code-block:: bash
-
-   sudo apt-get update
-   sudo apt-get install -y build-essential libncurses-dev bc \
-                           flex bison libssl-dev \
-                           libelf-dev gcc-aarch64-linux-gnu \
-		           git minicom python3-venv python3 python3-pip
-
-
-2. Clone the repository:
-
-.. code-block:: bash
-
-   git clone https://github.com/NXP-Research/lkss-main && cd lkss-main
-
-3. Create and activate the python virtual environment (recommended):
-
-.. code-block:: bash
-
-   python3 -m venv ./.venv && source ./.venv/bin/activate
-
-4. Install the python packages:
-
-.. code-block:: bash
-
-   pip install -r requirements.txt
-
-5. Initialize the environment:
-
-.. code-block:: bash
-
-   ./scripts/lkss.py init --runner native -f
-
-Docker development
-------------------
-
-Prerequisites
-~~~~~~~~~~~~~
-
-To get started, we're going to have to install `Docker`_. To do so, follow
-`these instructions <https://docs.docker.com/engine/install/ubuntu/>`__.
-
-.. warning::
-
-   Make sure you also install **docker-compose-plugin**. This package should
-   already be covered by the instructions linked above.
-
-To make sure everything went smoothly with the installation, you can try to
-run the **hello-world** Docker image as indicated by the documentation:
-
-.. code-block:: bash
-
-   sudo docker run hello-world
-
-Docker environment initialization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-With Docker installed, we can now proceed with the environment initialization:
-
-.. code-block:: bash
-
-   ./scripts/lkss.py init --runner docker -f
-
-.. warning::
-
-   If you get an error similar to:
-
-   .. code-block:: text
-
-      docker permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
-
-   during the initialization, please make sure you follow the steps described
-   `here <https://docs.docker.com/engine/install/linux-postinstall/>`__ to
-   add your user to the **docker** group.
-
-   To test if the changes were successful, you can run:
+   For native development, we're going to require a few more packages, which
+   can be installed by running:
 
    .. code-block:: bash
 
-      id -nG
+      sudo apt-get update
+      sudo apt-get install -y build-essential libncurses-dev bc \
+                              flex bison libssl-dev \
+                              libelf-dev gcc-aarch64-linux-gnu
 
-   You should see the **docker** group being listed there.
+   **Initialization**
 
-   You may need to restart your computer if the changes don't take effect
-   after logging out and logging back in.
+   With all of the necessary packages installed, we can now move on to the
+   next step, which is to initialize the environment for native development.
+   To do so, run:
 
-If all commands issued so far have returned successfully, your environment
-should now be prepared for Docker development.
+   .. code-block:: bash
 
-Summary
-~~~~~~~
+      ./scripts/lkss.py init --runner native -f
 
-1. Install the system packages:
-
-.. code-block:: bash
-
-   sudo apt-get update
-   sudo apt-get install -y git minicom python3-venv python3 python3-pip
+   If all commands issued so far have returned successfully, your environment
+   should now be prepared for native development.
 
 
-2. Clone the repository:
+.. dropdown:: Docker environment
+   :animate: fade-in-slide-down
+   :name: linux-docker-development
 
-.. code-block:: bash
+   **Prerequisites**
 
-   git clone https://github.com/NXP-Research/lkss-main && cd lkss-main
+   To get started, we're going to have to install `Docker`_. To do so, follow
+   `these instructions <https://docs.docker.com/engine/install/ubuntu/>`__.
 
-3. Create and activate the python virtual environment (recommended):
+   .. warning::
 
-.. code-block:: bash
+      Make sure you also install **docker-compose-plugin**. This package should
+      already be covered by the instructions linked above.
 
-   python3 -m venv ./.venv && source ./.venv/bin/activate
+   To make sure everything went smoothly with the installation, you can try to
+   run the **hello-world** Docker image as indicated by the documentation:
 
-4. Install the python packages:
+   .. code-block:: bash
 
-.. code-block:: bash
+      sudo docker run hello-world
 
-   pip install -r requirements.txt
+   **Initialization**
 
-5. Install Docker by following the steps from `here <https://docs.docker.com/engine/install/ubuntu/>`__.
+   With Docker installed, we can now proceed with the environment initialization:
 
-6. Initialize the environment:
+   .. code-block:: bash
 
-.. code-block:: bash
+      ./scripts/lkss.py init --runner docker -f
 
-   ./scripts/lkss.py init --runner docker -f
+   .. warning::
 
+      If you get an error similar to:
+
+      .. code-block:: text
+
+         docker permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+
+      during the initialization, please make sure you follow the steps described
+      `here <https://docs.docker.com/engine/install/linux-postinstall/>`__ to
+      add your user to the **docker** group.
+
+      To test if the changes were successful, you can run:
+
+      .. code-block:: bash
+
+         id -nG
+
+      You should see the **docker** group being listed there.
+
+      You may need to restart your computer if the changes don't take effect
+      after logging out and logging back in.
+
+   If all commands issued so far have returned successfully, your environment
+   should now be prepared for Docker development.
 
 Testing the environment
 -----------------------
