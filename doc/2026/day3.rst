@@ -1079,6 +1079,201 @@ Implement ``st7789_draw_pixel()``:
 
 ----
 
+10. ST7789 Framebuffer Miscdevice
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The kernel side is already fully implemented in ``st7789.c``.  Read the
+``Exercise 10`` section in that file to understand how it works, then verify
+it on the target before moving to exercise 11.
+
+The driver allocates a 240×240×2-byte ``vmalloc`` framebuffer in ``probe()``,
+registers a ``miscdevice`` named ``st7789fb``, and exposes two file operations:
+
+- **mmap** — ``remap_vmalloc_range()`` maps the kernel buffer pages into the
+  calling process's address space.  After ``mmap()`` succeeds, the process
+  can write pixels with a direct memory store; no system call is needed per
+  pixel.
+- **ioctl ST7789FB_FLUSH** — copies each row from the vmalloc buffer into a
+  temporary ``kmalloc`` line buffer and sends it to the display over SPI.
+  The intermediate copy is necessary because some SPI DMA engines require
+  physically contiguous source memory.
+
+**Enable the driver**::
+
+   ./scripts/lkss.py menuconfig
+   # Device Drivers -> LKSS Lab 3 -> ST7789 SPI display driver -> M
+
+**Build and install**::
+
+   ./scripts/lkss.py compile --install-modules
+
+**Load and verify on target**::
+
+   modprobe st7789.ko
+   ls /dev/st7789fb        # device node must appear
+   dmesg | grep st7789     # "ST7789 ready, framebuffer at /dev/st7789fb"
+
+----
+
+11. Scene Demo Application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build and run the userspace demo to verify your miscdevice implementation.
+The source is at ``repos/lkss-linux/drivers/lkss/lab3/user/st7789_scene.c``.
+
+1. Cross-compile::
+
+      cd repos/lkss-linux/drivers/lkss/lab3/user
+      make CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Copy to the target (adjust the IP address or use the rootfs overlay)::
+
+      ./scripts/lkss.py copy st7789_scene root/
+
+3. On the target, run::
+
+      modprobe st7789.ko
+      ./st7789_scene
+
+   The program cycles through four scenes, each held for 2 seconds:
+
+   - **Color bars** – 8 full-height vertical bands (R, G, B, Y, C, M, W, K)
+   - **RGB gradient** – red increases left-to-right, green increases top-to-bottom
+   - **Checkerboard** – 20×20 pixel black-and-white tiles
+   - **Framed dot grid** – coloured border with a white dot grid inside
+
+4. Inspect the code and understand the ``to_be16()`` byte-swap helper:
+   the ST7789 expects big-endian 16-bit pixels; the i.MX93 is little-endian,
+   so each colour constant must be byte-swapped before writing to the buffer.
+
+5. **Extension**: add your own scene.  Draw diagonal stripes, a target/bullseye,
+   or a simple text-like pattern using ``fb_rect`` calls.
+
+----
+
+12. Platform GPIO Driver
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The driver is fully implemented in
+``repos/lkss-linux/drivers/lkss/lab3/platform_gpio.c``.
+Read the source to understand how it works, then wire it up and verify it
+before moving to exercise 13.
+
+**Device Tree** — add the following node to
+``repos/lkss-linux/arch/arm64/boot/dts/freescale/imx93-11x11-frdm.dts``.
+Adjust the GPIO bank and pin numbers to match the LKSS daughter board schematic:
+
+.. code-block:: devicetree
+
+   lkss_gpio: lkss-gpio {
+       compatible = "lkss,platform-gpio";
+
+       /* 4 push-buttons: active-low (pressed = logical 1) */
+       button-gpios = <&gpio1 0 GPIO_ACTIVE_LOW>,
+                      <&gpio1 1 GPIO_ACTIVE_LOW>,
+                      <&gpio1 2 GPIO_ACTIVE_LOW>,
+                      <&gpio1 3 GPIO_ACTIVE_LOW>;
+
+       /* 3 LEDs: active-high */
+       led-gpios    = <&gpio1 4 GPIO_ACTIVE_HIGH>,
+                      <&gpio1 5 GPIO_ACTIVE_HIGH>,
+                      <&gpio1 6 GPIO_ACTIVE_HIGH>;
+   };
+
+Add a ``pinctrl`` node in ``&iomuxc`` for any pads that are not already
+configured as GPIOs by the default DTS.
+
+**Enable the driver**::
+
+   ./scripts/lkss.py menuconfig
+   # Device Drivers -> LKSS Lab 3 -> Lab3 Platform GPIO driver -> M
+
+**Build, install, and boot**::
+
+   ./scripts/lkss.py compile --install-modules
+   ./scripts/lkss.py boot
+
+**Load and verify**::
+
+   modprobe platform_gpio.ko
+   dmesg | grep lkss_gpio
+   # Expected output:
+   #   lkss_gpio: sysfs path: /sys/devices/platform/lkss-gpio
+   #   lkss_gpio: buttons:    /sys/devices/platform/lkss-gpio/button[0-3]
+   #   lkss_gpio: LEDs:       /sys/devices/platform/lkss-gpio/led[0-2]
+
+**Test the sysfs interface**::
+
+   # Read a button (0 = released, 1 = pressed)
+   cat /sys/devices/platform/lkss-gpio/button0
+
+   # Turn LED 0 on then off
+   echo 1 > /sys/devices/platform/lkss-gpio/led0
+   echo 0 > /sys/devices/platform/lkss-gpio/led0
+
+**Questions** — read ``platform_gpio.c`` and answer:
+
+1. Why does ``DEVICE_ATTR_RO(button0)`` generate a variable named
+   ``dev_attr_button0`` rather than ``button0``?
+2. What would happen if you used ``gpiod_get_raw_value()`` instead of
+   ``gpiod_get_value()`` for a button declared ``GPIO_ACTIVE_LOW``?
+3. Why does ``devm_device_add_group()`` not need a matching remove call,
+   while ``misc_register()`` does need ``misc_deregister()``?
+
+----
+
+13. Pong Game
+~~~~~~~~~~~~~~
+
+Combine the miscdevice framebuffer (exercise 10) and the platform GPIO driver
+(exercise 12) to play Pong on the 240×240 display.
+
+The source is at ``repos/lkss-linux/drivers/lkss/lab3/user/pong.c``.
+
+**Build**::
+
+   cd repos/lkss-linux/drivers/lkss/lab3/user
+   make CROSS_COMPILE=aarch64-linux-gnu-
+   ./scripts/lkss.py copy pong root/
+
+**Run on target**::
+
+   modprobe st7789.ko
+   modprobe platform_gpio.ko
+   ./pong
+
+**Controls**:
+
++----------+----------------------------+
+| Button   | Action                     |
++==========+============================+
+| Button 0 | Player 1 paddle **UP**     |
++----------+----------------------------+
+| Button 1 | Player 1 paddle **DOWN**   |
++----------+----------------------------+
+| Button 2 | Player 2 paddle **UP**     |
++----------+----------------------------+
+| Button 3 | Player 2 paddle **DOWN**   |
++----------+----------------------------+
+
+The first player to reach **9 points** wins.
+
+**How it works**:
+
+- The game loop runs at approximately 30 FPS (``nanosleep(33 ms)``).
+- Each frame: read the four buttons → update paddle positions → update ball
+  physics → render into the mmapped framebuffer → call ``ioctl(ST7789FB_FLUSH)``.
+- The ball bounces off the top/bottom walls and both paddles.
+  Scoring resets the ball to the centre.
+- The score is rendered using a tiny 3×5 pixel bitmap font stored in a
+  ``uint8_t[10][5]`` array.
+
+**Inspect the sysfs button path**: if the platform_gpio driver prints a
+different sysfs path in ``dmesg``, update the ``BTN[]`` array at the top of
+``pong.c`` to match before building.
+
+----
+
 Useful resources
 ----------------
 
@@ -1086,3 +1281,6 @@ Useful resources
 - `ST7789VW datasheet <https://www.waveshare.com/w/upload/a/ad/ST7789VW.pdf>`_ —
   full command reference and initialization guidance
 - Staging driver reference: ``repos/lkss-linux/drivers/staging/fbtft/fb_st7789v.c``
+- `Linux miscdevice API <https://docs.kernel.org/driver-api/miscellaneous-devices.html>`_
+- `Linux GPIO descriptor API <https://docs.kernel.org/driver-api/gpio/consumer.html>`_
+- `Linux sysfs API <https://docs.kernel.org/filesystems/sysfs.html>`_
